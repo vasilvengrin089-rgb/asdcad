@@ -168,7 +168,7 @@ local function GetClosestPlayer()
 
     for _, v in pairs(game.Players:GetPlayers()) do
 
-        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Head") then
+        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
 
             local pos, onScreen = Camera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
 
@@ -210,7 +210,7 @@ RunService.RenderStepped:Connect(function()
 
         local target = GetClosestPlayer()
 
-        if target and target.Character:FindFirstChild("Head") then
+        if target and target.Character:FindFirstChild("HumanoidRootPart") then
 
             -- Миттєво повертаємо камеру до цілі
 

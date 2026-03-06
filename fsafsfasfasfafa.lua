@@ -234,7 +234,7 @@ MainTab:CreateButton({
 -- Додамо слайдер для швидкості польоту, щоб було зручніше
 MainTab:CreateSlider({
    Name = "Швидкість польоту",
-   Range = {10, 1000000},
+   Range = {10, 1000},
    Increment = 1,
    CurrentValue = 50,
    Callback = function(Value)

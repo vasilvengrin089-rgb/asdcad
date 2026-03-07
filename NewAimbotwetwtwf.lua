@@ -1,9 +1,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Xeno Pro Hub: FINAL",
-   LoadingTitle = "Оптимізація наведення...",
-   LoadingSubtitle = "by Gemini",
+   Name = "Comparation:Norvixes",
+   LoadingTitle = "Creator:Norvix",
+   LoadingSubtitle = "Norvixes",
    ConfigurationSaving = { Enabled = false }
 })
 

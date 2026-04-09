@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Віковий сканер</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 20px; background: #1a1a2e; color: white; }
+        button { background: #4CAF50; padding: 15px 30px; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; margin: 10px; }
+        video { width: 100%; max-width: 500px; border-radius: 10px; margin-top: 20px; display: none; }
+        .age { font-size: 48px; color: gold; margin: 20px; }
+        .hidden { display: none; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+<body>
+    <h1>📸 Віковий сканер</h1>
+    <button id="startBtn">🎥 Увімкнути камеру</button>
+    <button id="stopBtn" disabled>⏹️ Вимкнути камеру</button>
+    <div class="age">Вік: <span id="age">--</span> років</div>
+    <div id="status">⚪ Камера вимкнена</div>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const ageSpan = document.getElementById('age');
+        const statusDiv = document.getElementById('status');
+        let stream = null;
+        let modelsLoaded = false;
+
+        async function loadModels() {
+            statusDiv.innerText = '📥 Завантаження AI...';
+            await faceapi.nets.tinyFaceDetector.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+            await faceapi.nets.ageGenderNet.loadFromUri('https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights');
+            modelsLoaded = true;
+            statusDiv.innerText = '✅ AI готовий. Натисніть "Увімкнути камеру"';
+        }
+
+        async function startCamera() {
+            if (!modelsLoaded) { statusDiv.innerText = '⏳ Зачекайте завантаження AI...'; return; }
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                await video.play();
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusDiv.innerText = '🎥 Камера працює! Шукає обличчя...';
+                detectFace();
+            } catch(e) {
+                statusDiv.innerText = '❌ Помилка: ' + e.message;
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            video.style.display = 'none';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            ageSpan.innerText = '--';
+            statusDiv.innerText = '⏹️ Камера вимкнена';
+        }
+
+        async function detectFace() {
+            if (!stream) return;
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withAgeAndGender();
+            if (detections.length > 0) {
+                const age = Math.round(detections[0].age);
+                ageSpan.innerText = age;
+                statusDiv.innerText = `👤 Вік: ${age} років`;
+            } else {
+                statusDiv.innerText = '😕 Обличчя не знайдено';
+            }
+            requestAnimationFrame(detectFace);
+        }
+
+        startBtn.onclick = startCamera;
+        stopBtn.onclick = stopCamera;
+        loadModels();
+    </script>
+</body>
+</html>
